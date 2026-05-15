@@ -1,0 +1,11 @@
+NovaTech is a fictional technology company founded in 2019 to make workplace coordination easier for fast-moving teams. The company was started by a small group of engineers and operations leaders who believed that calendars should understand priorities, not just time slots.
+
+NovaTech is led by CEO Aria Chen, a product-focused executive known for building practical AI tools for everyday business workflows. Under her leadership, NovaTech has focused on reliable automation, clear user control, and simple integrations with the tools teams already use.
+
+The company's flagship product is FlowAI, an AI scheduling assistant designed to reduce the time people spend arranging meetings. FlowAI can compare availability, suggest meeting times, detect scheduling conflicts, and help teams protect focus time. It is especially useful for project managers, recruiters, customer success teams, and executives who coordinate across many calendars.
+
+NovaTech also experiments with related productivity products, including lightweight meeting summaries, team availability dashboards, and planning analytics. However, FlowAI remains the main product and the center of the company's roadmap.
+
+The company presents itself as practical rather than futuristic. Its mission is to remove routine coordination work so people can spend more time making decisions, serving customers, and building products. NovaTech's internal design principle is that automation should be transparent: users should always know what FlowAI is doing and be able to approve or change important scheduling decisions.
+
+By keeping its product focused, NovaTech has built a reputation for dependable scheduling assistance instead of broad, confusing automation. The company's long-term plan is to make FlowAI a trusted coordination layer for modern teams.
