@@ -355,6 +355,19 @@ def index() -> str:
     const messageInput = document.getElementById("messageInput");
     const sendBtn = document.getElementById("sendBtn");
 
+    async function readResponsePayload(response) {
+      const raw = await response.text();
+      if (!raw) {
+        return { detail: `Request failed with status ${response.status}.` };
+      }
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return { detail: raw };
+      }
+    }
+
     function setStatus(target, message, kind = "") {
       target.textContent = message || "";
       target.className = kind ? `status ${kind}` : "status";
@@ -421,7 +434,7 @@ def index() -> str:
 
       try {
         const response = await fetch("/api/documents", { method: "POST", body: formData });
-        const payload = await response.json();
+        const payload = await readResponsePayload(response);
         if (!response.ok) throw new Error(payload.detail || "Upload failed.");
         setStatus(uploadStatus, `Stored ${payload.filename} with ${payload.chunk_count} chunks.`, "success");
         fileInput.value = "";
@@ -437,7 +450,7 @@ def index() -> str:
       setStatus(uploadStatus, `Re-embedding ${filename}...`);
       try {
         const response = await fetch(`/api/documents/${encodeURIComponent(filename)}/reembed`, { method: "POST" });
-        const payload = await response.json();
+        const payload = await readResponsePayload(response);
         if (!response.ok) throw new Error(payload.detail || "Re-embed failed.");
         setStatus(uploadStatus, `Re-embedded ${payload.filename} with ${payload.chunk_count} chunks.`, "success");
         await loadDocuments();
@@ -450,7 +463,7 @@ def index() -> str:
       setStatus(uploadStatus, `Deleting ${filename}...`);
       try {
         const response = await fetch(`/api/documents/${encodeURIComponent(filename)}`, { method: "DELETE" });
-        const payload = await response.json();
+        const payload = await readResponsePayload(response);
         if (!response.ok) throw new Error(payload.detail || "Delete failed.");
         setStatus(uploadStatus, payload.message, "success");
         await loadDocuments();
@@ -475,7 +488,7 @@ def index() -> str:
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message })
         });
-        const payload = await response.json();
+        const payload = await readResponsePayload(response);
         if (!response.ok) throw new Error(payload.detail || "Chat failed.");
         addBubble(payload.response, "assistant");
         setStatus(chatStatus, "", "");
@@ -491,7 +504,7 @@ def index() -> str:
       clearMemoryBtn.disabled = true;
       try {
         const response = await fetch("/api/chat/clear", { method: "POST" });
-        const payload = await response.json();
+        const payload = await readResponsePayload(response);
         if (!response.ok) throw new Error(payload.detail || "Could not clear memory.");
         addBubble("Chat memory cleared.", "assistant");
       } catch (error) {
