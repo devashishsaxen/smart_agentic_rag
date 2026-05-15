@@ -20,7 +20,7 @@ SYSTEM_PROMPT = (
     "You are a helpful assistant with access to a knowledge base. Decide whether "
     "the user's question needs document retrieval. If the question is about "
     "ingested documents or may depend on them, use the retrieve_context tool "
-    "first. If the question is general knowledge, small talk, or simple "
+    "first. If the question is general knowledge, small talk, greetings, or simple "
     "reasoning, answer directly. If retrieval is used and the retrieved context "
     "does not answer the question, say that clearly instead of pretending to try again. "
     "When you answer from retrieved context, cite the supporting source labels exactly "
@@ -56,6 +56,24 @@ GENERAL_KNOWLEDGE_HINTS = {
     "population",
     "president",
     "prime minister",
+}
+
+CASUAL_CHAT_HINTS = {
+    "hello",
+    "hi",
+    "hey",
+    "hii",
+    "hy",
+    "yo",
+    "thanks",
+    "thank you",
+    "bye",
+    "goodbye",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "how are you",
+    "who are you",
 }
 
 
@@ -187,6 +205,12 @@ class Agent:
             return False
         return self._contains_hint(normalized, GENERAL_KNOWLEDGE_HINTS)
 
+    def _looks_casual_chat(self, user_message: str) -> bool:
+        normalized = self._normalize(user_message)
+        if self._looks_document_related(normalized):
+            return False
+        return self._contains_hint(normalized, CASUAL_CHAT_HINTS)
+
     @staticmethod
     def _no_context_answer() -> str:
         return (
@@ -197,10 +221,14 @@ class Agent:
     def chat(self, user_message: str) -> str:
         self.history.append({"role": "user", "content": user_message})
         force_retrieval = self._looks_document_related(user_message)
-        use_tools = not self._looks_general_knowledge(user_message)
+        casual_chat = self._looks_casual_chat(user_message)
+        general_knowledge = self._looks_general_knowledge(user_message)
+        use_tools = not (casual_chat or general_knowledge)
 
         if force_retrieval:
             print("[agent] Routing decision: document-style question, forcing retrieval.")
+        elif casual_chat:
+            print("[agent] Routing decision: casual chat, answering directly.")
         elif not use_tools:
             print("[agent] Routing decision: general question, answering directly.")
 
@@ -248,12 +276,21 @@ class Agent:
                     }
                 )
 
-            if not saw_context:
+            if not saw_context and force_retrieval:
                 final_text = self._no_context_answer()
                 self.history.append({"role": "assistant", "content": final_text})
                 self._trim_history()
                 self._save_memory()
                 return final_text
+
+            if not saw_context and not force_retrieval:
+                response = self._create_message(history=self.history, use_tools=False)
+                message = response["choices"][0]["message"]
+                final_text = (message.get("content") or "").strip()
+                self.history.append({"role": "assistant", "content": final_text})
+                self._trim_history()
+                self._save_memory()
+                return final_text or "I could not generate a response."
 
             response = self._create_message(history=follow_up_history, use_tools=False)
             message = response["choices"][0]["message"]
