@@ -71,7 +71,7 @@ The simplest deployment path is Render using a persistent disk.
 1. Push this project to GitHub.
 2. In Render, create a new `Web Service`.
 3. Connect the GitHub repo.
-4. Use either:
+4. Use the native Python runtime with:
 
 Build command:
 
@@ -85,7 +85,13 @@ Start command:
 uvicorn webapp:app --host 0.0.0.0 --port $PORT
 ```
 
-Or deploy with the included `Dockerfile`.
+Health check path:
+
+```text
+/api/health
+```
+
+You can also use the included `render.yaml`.
 
 ### Render Environment Variables
 
@@ -95,9 +101,9 @@ Set:
 NVIDIA_API_KEY=your_real_nvidia_api_key
 NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
 NVIDIA_MODEL=meta/llama-3.1-70b-instruct
-CHROMA_PERSIST_DIR=/app/data/chroma_db
-UPLOAD_DIR=/app/data/uploads
-MEMORY_FILE=/app/data/chat_memory.json
+CHROMA_PERSIST_DIR=/opt/render/project/src/render_data/chroma_db
+UPLOAD_DIR=/opt/render/project/src/render_data/uploads
+MEMORY_FILE=/opt/render/project/src/render_data/chat_memory.json
 ```
 
 ### Persistent Storage
@@ -105,7 +111,7 @@ MEMORY_FILE=/app/data/chat_memory.json
 Add one persistent disk and mount it to:
 
 ```text
-/app/data
+/opt/render/project/src/render_data
 ```
 
 ## Docker Run

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: smart-agentic-rag
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn webapp:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: NVIDIA_BASE_URL
+        value: https://integrate.api.nvidia.com/v1
+      - key: NVIDIA_MODEL
+        value: meta/llama-3.1-70b-instruct
+      - key: CHROMA_PERSIST_DIR
+        value: /opt/render/project/src/render_data/chroma_db
+      - key: UPLOAD_DIR
+        value: /opt/render/project/src/render_data/uploads
+      - key: MEMORY_FILE
+        value: /opt/render/project/src/render_data/chat_memory.json
